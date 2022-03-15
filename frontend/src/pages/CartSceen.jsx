@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import addToCart from "../Redux/Actions/CartActions"
+import {addToCart, removeFromCart} from "../Redux/Actions/CartActions"
 const CartSceen = () => {
   const dispatch=useDispatch();
   const {id}=useParams();
@@ -9,38 +9,46 @@ const CartSceen = () => {
   const qty = searchParams.get("qty") ? Number(searchParams.get("qty")) : 1
   const cart=useSelector(state=>state.cart)
   const {cartItems} = cart;
-  console.log(cartItems)
+  console.log(id)
   useEffect(() => {
-    dispatch(addToCart(id,qty))
+    if(typeof id!=="undefined"){
+      dispatch(addToCart(id,qty))
+    }
   }, [dispatch,id,qty])
   const total = cartItems.reduce((a, i) => a + i.qty * i.price, 0).toFixed(2);
 
+  const removeFromCartHandle =(id)=>{
+    dispatch(removeFromCart(id))
+  }
   return (
     <div>
       {/* Cart */}
       <div className="container">
-        {/* <div className=" alert alert-info text-center mt-3">
-          Your cart is empty
-          <Link
-            className="btn btn-success mx-5 px-5 py-3"
-            to="/"
-            style={{
-              fontSize: "12px",
-            }}
-          >
-            SHOPPING NOW
-          </Link>
-        </div> */}
+        {cartItems.length===0?(
         <div className=" alert alert-info text-center mt-3">
+        Your cart is empty
+        <Link
+          className="btn btn-success mx-5 px-5 py-3"
+          to="/"
+          style={{
+            fontSize: "12px",
+          }}
+        >
+          SHOPPING NOW
+        </Link>
+      </div>   
+        ):(
+          <>
+          <div className=" alert alert-info text-center mt-3">
           Total Cart Products
           <Link className="text-success mx-2" to="/cart">
-            (4)
+            ({cartItems.length})
           </Link>
         </div>
         {/* cartiterm */}
         {cartItems.map(item=>(
           <div className="cart-iterm row">
-          <div className="remove-button d-flex justify-content-center align-items-center">
+          <div onClick={()=>removeFromCartHandle(item.product)}  className="remove-button d-flex justify-content-center align-items-center">
             <i className="fas fa-times"></i>
           </div>
           <div className="cart-image col-md-3">
@@ -88,6 +96,10 @@ const CartSceen = () => {
             </button>
           </div>
         </div>
+          </>
+        )}
+        
+        
       </div>
     </div>
   );
